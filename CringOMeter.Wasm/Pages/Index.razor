@@ -1,0 +1,79 @@
+﻿@page "/"
+@using System.ComponentModel.DataAnnotations
+@using System.Text.Json
+@using System.Text
+@inject HttpClient httpClient
+
+<EditForm Model="@formData" OnValidSubmit="@HandleFormSubmit">
+	<DataAnnotationsValidator />
+
+	<h2>Номер иссуя или пулл реквеста</h2>
+	<InputText id="github-issue" placeholder="Номер иссуя, например: 8888" DisplayName="URL" @bind-Value="formData.IssueNumber" />
+
+	<button type="submit">Проверить</button>
+</EditForm>
+
+@if (inProgress)
+{
+	<h2>Анализ текста...</h2>
+}
+
+@if (result != null)
+{
+	<div class="report">
+		<h2><img class="avatar" src=@result.TargetIssue.Author.Avatar /><span>@result.TargetIssue.Title</span> <a href=@result.TargetIssue.Url >#@result.TargetIssue.Number</a></h2>
+		<p>
+			@result.Prediction
+		</p>
+	</div>
+}
+
+@error
+
+
+@code {
+	private sealed class FormData
+	{
+		[Required]
+		public string IssueNumber { get; set; } = string.Empty;
+	}
+
+	private sealed record Result(PullRequest TargetIssue, string Prediction);
+
+	private bool inProgress = false;
+	private string? error;
+	private Result? result;
+	private FormData formData = new();
+
+	private async Task HandleFormSubmit()
+	{
+		inProgress = true;
+		error = null;
+		result = null;
+		var response = await httpClient.GetAsync($"https://api.github.com/repos/ChaoticOnyx/OnyxBay/issues/{formData.IssueNumber}");
+		var issue = await response.Content.ReadFromJsonAsync<PullRequest>(new System.Text.Json.JsonSerializerOptions
+		{
+			PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+			Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+			WriteIndented = true,
+			DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault
+		});
+
+		if (issue is null || !response.IsSuccessStatusCode)
+		{
+			error = "Иссуй не найден.";
+			return;
+		}
+
+		var stream = await httpClient.GetStreamAsync("./CringeModel.zip");
+
+		var model = new CringeModel.ModelInput
+		{
+			Col0 = issue.Body
+		};
+
+		var prediction = CringeModel.Predict(stream, model);
+		result = new Result(issue, $"Кринжовость: {prediction.Probability * 100:F2}%");
+		inProgress = false;
+	}
+}
