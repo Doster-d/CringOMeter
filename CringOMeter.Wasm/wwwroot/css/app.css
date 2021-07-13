@@ -44,13 +44,13 @@ input, button {
 
 .report {
     margin-top: 1rem;
-    background-color: #1c2025;
+    background-color: #1c2025bd;
     border: #22252f 0.05rem solid;
     border-radius: 0.4rem;
     box-shadow: #30333e3b 0px 0px 0.5rem;
     animation: report-fade-out cubic-bezier(0, 0, 0.2, 1) 1.5s;
-    background-color: #1c2025bd;
-    backdrop-filter: blur(0.5rem);
+    backdrop-filter: blur(0.2rem);
+    width: min(100%, 80ch);
 }
 
 .report > h2 {
@@ -117,6 +117,22 @@ button {
     user-select: none;
 }
 
+#particles-js {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    pointer-events: none;
+}
+
+#particles-js > canvas {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+}
+
 button:hover,
 button:focus {
     background-color: rgba(255, 255, 255, 0.14);
@@ -151,19 +167,6 @@ button:focus {
 
 .validation-message {
     color: #FF3037;
-}
-
-#app {
-    position: absolute;
-    align-self: center;
-    margin-left: 25%;
-}
-
-#wrapper {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    background: #111;
 }
 
 #blazor-error-ui {
