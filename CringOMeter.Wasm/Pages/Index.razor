@@ -1,5 +1,6 @@
 ﻿@page "/"
 @using System.ComponentModel.DataAnnotations
+@using System.IO
 @using System.Text.Json
 @using System.Text
 @inject HttpClient httpClient
@@ -7,8 +8,7 @@
 <EditForm Model="@formData" OnValidSubmit="@HandleFormSubmit">
 	<DataAnnotationsValidator />
 
-	<h2>Номер иссуя или пулл реквеста</h2>
-	<InputText id="github-issue" placeholder="Номер иссуя, например: 8888" DisplayName="URL" @bind-Value="formData.IssueNumber" />
+	<InputNumber id="github-issue" placeholder="Номер иссуя, например: 8888" DisplayName="URL" @bind-Value="formData.IssueNumber" />
 
 	<button type="submit">Проверить</button>
 </EditForm>
@@ -35,7 +35,7 @@
 	private sealed class FormData
 	{
 		[Required]
-		public string IssueNumber { get; set; } = string.Empty;
+		public int IssueNumber { get; set; }
 	}
 
 	private sealed record Result(PullRequest TargetIssue, string Prediction);
@@ -45,13 +45,14 @@
 	private Result? result;
 	private FormData formData = new();
 
+    [DisableCors]
 	private async Task HandleFormSubmit()
 	{
-		inProgress = true;
+	    inProgress = true;
 		error = null;
 		result = null;
 		var response = await httpClient.GetAsync($"https://api.github.com/repos/ChaoticOnyx/OnyxBay/issues/{formData.IssueNumber}");
-		var issue = await response.Content.ReadFromJsonAsync<PullRequest>(new System.Text.Json.JsonSerializerOptions
+		var issue = await response.Content.ReadFromJsonAsync<PullRequest>(new JsonSerializerOptions
 		{
 			PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
 			Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
@@ -67,9 +68,9 @@
 
 		var stream = await httpClient.GetStreamAsync("./CringeModel.zip");
 
-		var model = new CringeModel.ModelInput
+	    var model = new CringeModel.ModelInput
 		{
-			Col0 = issue.Body
+			Text = issue.Body
 		};
 
 		var prediction = CringeModel.Predict(stream, model);

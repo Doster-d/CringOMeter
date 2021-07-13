@@ -19,7 +19,7 @@ namespace CringOMeter.Wasm {
                 var client = new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) };
                 client.DefaultRequestHeaders.UserAgent.ParseAdd("PostmanRuntime/7.28.0");
                 client.DefaultRequestHeaders.Accept.ParseAdd("application/vnd.github.groot-preview+json");
-                
+
                 return client;
             });
 
