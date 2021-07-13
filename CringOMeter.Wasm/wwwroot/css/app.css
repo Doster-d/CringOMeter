@@ -6,7 +6,7 @@
 
 html, body {
     font-family: 'SF Pro Display', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    font-size: 1.2em;
+    font-size: 1em;
     color: #F5F5F7;
     padding: 0;
 }
@@ -41,27 +41,26 @@ input, button {
 }
 
 .report {
+    margin-top: 1rem;
     background-color: #1c2025;
     border: #22252f 0.05rem solid;
     border-radius: 0.4rem;
-    padding-left: 2rem;
-    padding-right: 2rem;
     box-shadow: #30333e3b 0px 0px 0.5rem;
     animation: report-fade-out cubic-bezier(0, 0, 0.2, 1) 1.5s;
 }
 
-.report h2 {
+.report > h2 {
     border-bottom: #30333e 0.05rem solid;
     padding-bottom: 1rem;
     padding-top: 1rem;
+    padding-left: 2rem;
+    padding-right: 2rem;
     margin: 0;
 }
 
-.report p {
-    padding-left: 2rem;
-    padding-right: 2rem;
-    padding-bottom: 1rem;
-    padding-top: 1rem;
+.report > p {
+    padding-left: 1rem;
+    padding-right: 1rem;
 }
 
 @keyframes report-fade-out {
@@ -117,6 +116,25 @@ button {
 button:hover,
 button:focus {
     background-color: rgba(255, 255, 255, 0.14);
+}
+
+.labels {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-content: center;
+    justify-content: flex-start;
+    align-items: center;
+    margin: 1rem;
+}
+
+.label {
+    margin: 0;
+    border-radius: 2rem;
+    padding: 0.6rem;
+    padding-top: 0.2rem;
+    padding-bottom: 0.3rem;
+    margin-right: 0.5rem;
 }
 
 .valid.modified:not([type=checkbox]) {

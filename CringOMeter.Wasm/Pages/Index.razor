@@ -18,21 +18,29 @@
 	<h2>Анализ текста...</h2>
 }
 
+@error
+
 @if (result != null)
 {
 	<div class="report">
 		<h2><img class="avatar" src=@result.TargetIssue.Author.Avatar /><span>@result.TargetIssue.Title</span> <a href=@result.TargetIssue.Url >#@result.TargetIssue.Number</a></h2>
-		<p>
+        <div class="labels">
+            @foreach(var label in result.TargetIssue.Labels)
+            {
+                <p class="label" style="background-color: #@label.Color">@label.Name</p>
+            }
+        </div>
+        <article class="markdown-body">
+          @((MarkupString)renderedMessage)
+        </article>
+        <p>
 			@result.Prediction
 		</p>
 	</div>
 }
 
-@error
-
-
 @code {
-	private sealed class FormData
+    private sealed class FormData
 	{
 		[Required]
 		public int IssueNumber { get; set; }
@@ -41,11 +49,11 @@
 	private sealed record Result(PullRequest TargetIssue, string Prediction);
 
 	private bool inProgress = false;
-	private string? error;
-	private Result? result;
+	private string error;
+	private Result result;
 	private FormData formData = new();
+    private string renderedMessage = string.Empty;
 
-    [DisableCors]
 	private async Task HandleFormSubmit()
 	{
 	    inProgress = true;
@@ -74,7 +82,25 @@
 		};
 
 		var prediction = CringeModel.Predict(stream, model);
+        await RenderMarkdown(issue.Body);
 		result = new Result(issue, $"Кринжовость: {prediction.Probability * 100:F2}%");
-		inProgress = false;
-	}
+		inProgress = false;        
+    }
+
+    private async Task RenderMarkdown(string markdown)
+    {
+        var response = await httpClient.PostAsJsonAsync("https://api.github.com/markdown", new
+        {
+            text = markdown
+        });
+
+        if (!response.IsSuccessStatusCode)
+        {
+            error = await response.Content.ReadAsStringAsync();
+            renderedMessage = string.Empty;
+            return;
+        }
+
+        renderedMessage = await response.Content.ReadAsStringAsync();
+    }
 }
