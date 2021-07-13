@@ -9,6 +9,8 @@ html, body {
     font-size: 1em;
     color: #F5F5F7;
     padding: 0;
+    margin: 0 auto;
+    height: 100%;
 }
 
 a, .btn-link {
@@ -47,6 +49,8 @@ input, button {
     border-radius: 0.4rem;
     box-shadow: #30333e3b 0px 0px 0.5rem;
     animation: report-fade-out cubic-bezier(0, 0, 0.2, 1) 1.5s;
+    background-color: #1c2025bd;
+    backdrop-filter: blur(0.5rem);
 }
 
 .report > h2 {
@@ -147,6 +151,19 @@ button:focus {
 
 .validation-message {
     color: #FF3037;
+}
+
+#app {
+    position: absolute;
+    align-self: center;
+    margin-left: 25%;
+}
+
+#wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: #111;
 }
 
 #blazor-error-ui {
